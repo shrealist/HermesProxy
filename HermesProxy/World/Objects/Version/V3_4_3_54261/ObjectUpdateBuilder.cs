@@ -548,8 +548,9 @@ public partial class ObjectUpdateBuilder
 
     internal void WriteCreateUnitClassId(WorldPacket data, UnitData src)
     {
-        bool zeroCharBakeIds = IsImpersonatingCreatureBake();
-        data.WriteUInt8(zeroCharBakeIds ? (byte)0 : src.ClassId.GetValueOrDefault());
+        // Preserve the server class for UnitClass and addon class colors on NPCBots.
+        // Race/Sex still use the legacy creature-bake workaround below/above.
+        data.WriteUInt8(src.ClassId.GetValueOrDefault());
     }
 
     internal void WriteCreateUnitSexId(WorldPacket data, UnitData src)
@@ -813,8 +814,8 @@ public partial class ObjectUpdateBuilder
     // textured via the CreatureDisplayInfoExtra bake path.
     //
     // Detection signal: Creature-typed GUID + CLONED bit on Flags2 (NPCBot stamps it on
-    // every bot creature). Zero Race/Class/Sex on the wire for those objects so the client
-    // takes the legacy bake path.
+    // every bot creature). Zero Race/Sex on the wire for those objects to retain the legacy bake workaround.
+    // Class must remain available to UnitClass; verify model textures in the client.
     private bool IsImpersonatingCreatureBake()
     {
         if (_updateData.Guid.GetHighType() != HighGuidType.Creature) return false;

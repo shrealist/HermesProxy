@@ -141,7 +141,7 @@ public class UnitSectionEquivalenceTests
     }
 
     // ---------------------------------------------------------------------
-    // NPCBot creature: Flags2 with CLONED → SanitizeFlags2 strips bit + Race/Class/Sex zeroed.
+    // NPCBot creature: Flags2 with CLONED → SanitizeFlags2 strips bit + Race/Sex zeroed, Class preserved.
     // ---------------------------------------------------------------------
 
     [Fact]
@@ -165,10 +165,17 @@ public class UnitSectionEquivalenceTests
         builder.WriteCreateUnitData(actual);
 
         // For a Creature highType with CLONED flag: SanitizeFlags2 strips the bit (Flags2
-        // becomes 0), AND IsImpersonatingCreatureBake returns true (Race/Class/Sex written as 0).
+        // becomes 0). Race/Sex are zeroed, but the server class is retained for UnitClass.
+        // Keep the frozen oracle unchanged; feed it the intended on-wire identity.
         var expected = new WorldPacket();
-        WriteCreateUnitData_HandPort(expected, unit, isOwner: false, zeroCharBakeIds: true, isCreature: true,
+        var race = unit.RaceId;
+        var sex = unit.SexId;
+        unit.RaceId = 0;
+        unit.SexId = 0;
+        WriteCreateUnitData_HandPort(expected, unit, isOwner: false, zeroCharBakeIds: false, isCreature: true,
             playerData: null, createdBy: unit.CreatedBy);
+        unit.RaceId = race;
+        unit.SexId = sex;
 
         Assert.Equal(expected.GetData(), actual.GetData());
     }
