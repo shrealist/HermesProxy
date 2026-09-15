@@ -12,6 +12,23 @@ namespace HermesProxy.World.Server;
 public partial class WorldSocket
 {
     // Handlers for CMSG opcodes coming from the modern client
+    [PacketHandler(Opcode.CMSG_REQUEST_PARTY_JOIN_UPDATES)]
+    void HandleRequestPartyJoinUpdates(RequestPartyJoinUpdates request)
+    {
+        // The 3.4.3 client sends this after it has built the party UI. Replaying the cached
+        // membership at that point lets it bind NPCBot creature GUIDs to party slots and
+        // replace the temporary "Unknown Target" labels with the names from SMSG_GROUP_LIST.
+        foreach (var group in GetSession().GameState.CurrentGroups)
+        {
+            if (group == null)
+                continue;
+
+            var replay = group.CloneUnwritten();
+            replay.SequenceNum = GetSession().GameState.GroupUpdateCounter++;
+            GetSession().WorldClient!.SendPacketToClient(replay);
+        }
+    }
+
     [PacketHandler(Opcode.CMSG_PARTY_INVITE)]
     void HandleUpdateRaidTarget(PartyInviteClient invite)
     {

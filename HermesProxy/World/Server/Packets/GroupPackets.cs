@@ -212,6 +212,16 @@ class PartyInviteResponse : ClientPacket
     public uint? RolesDesired;
 }
 
+public sealed class RequestPartyJoinUpdates : ClientPacket
+{
+    public RequestPartyJoinUpdates(WorldPacket packet) : base(packet) { }
+
+    public override void Read()
+    {
+        // This 3.4.3 client request has no payload. It asks the server to refresh the
+        // current party after the party UI has finished initialising.
+    }
+}
 public class PartyUpdate : ServerPacket
 {
     public PartyUpdate() : base(Opcode.SMSG_PARTY_UPDATE) { }
