@@ -102,9 +102,16 @@ public static class VersionChecker
                 or ClientVersionBuild.V1_14_2_42082
                 or ClientVersionBuild.V1_14_2_42214
                 or ClientVersionBuild.V1_14_2_42597
+                or ClientVersionBuild.V3_4_3_52237
                 or ClientVersionBuild.V3_4_3_54261 => true,
             _ => false,
         };
+
+    // WPP maps both builds to V3_4_3_51666 opcodes. Keep protocol dispatch on
+    // the existing 54261 implementation; authentication retains the exact client build.
+    public static ClientVersionBuild GetProtocolBuild(ClientVersionBuild clientBuild) =>
+        clientBuild == ClientVersionBuild.V3_4_3_52237
+            ? ClientVersionBuild.V3_4_3_54261 : clientBuild;
 
     public static ClientVersionBuild GetBestLegacyVersion(ClientVersionBuild modernVersion)
     {
@@ -444,9 +451,11 @@ public static class LegacyVersion
 
 public static class ModernVersion
 {
+    // Exact build used by Battle.net authentication and advertised realm versions.
+    public static readonly ClientVersionBuild ClientBuild = RequireBuild();
     // Declaration order IS initialization order for static field initializers. Build must be
     // declared first so the loaders below can reference it through the derived fields.
-    public static readonly ClientVersionBuild Build = RequireBuild();
+    public static readonly ClientVersionBuild Build = VersionChecker.GetProtocolBuild(ClientBuild);
     public static readonly byte ExpansionVersion = GetExpansionVersion();
     public static readonly byte MajorVersion = GetMajorPatchVersion();
     public static readonly byte MinorVersion = GetMinorPatchVersion();

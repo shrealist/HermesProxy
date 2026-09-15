@@ -24,7 +24,7 @@ public partial class BnetServices
             return BattlenetRpcErrorCode.BadProgram;
         }
 
-        if (logonRequest.ApplicationVersion != HermesProxy.ModernVersion.BuildInt)
+        if (logonRequest.ApplicationVersion != (uint)HermesProxy.ModernVersion.ClientBuild)
         {
             ServiceLog(LogType.Error, $"Battlenet.LogonRequest: Attempted to log in with wrong game version (using {logonRequest.ApplicationVersion})!");
             return BattlenetRpcErrorCode.BadVersion;

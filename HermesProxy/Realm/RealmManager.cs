@@ -44,11 +44,13 @@ public sealed class RealmManager
 
     private readonly string _externalAddress;
     private readonly int _realmPort;
+    private readonly uint _clientBuild;
 
     public RealmManager(ClientOptions clientOptions, ProxyNetworkOptions networkOptions)
     {
         _externalAddress = networkOptions.ExternalAddress;
         _realmPort = networkOptions.RealmPort;
+        _clientBuild = (uint)clientOptions.ClientBuild;
 
         LoadBuildInfo(clientOptions);
 
@@ -68,7 +70,7 @@ public sealed class RealmManager
         if (!hotfixVersion.IsEmpty() && hotfixVersion.Length < build.HotfixVersion.Length)
             build.HotfixVersion = hotfixVersion.ToCharArray();
 
-        build.Build = (uint)ModernVersion.Build;
+        build.Build = _clientBuild;
 
         build.FallbackStaticSeed = clientOptions.ClientSeed;
         build.BuildSeeds = GameData.BuildAuthSeeds.GetValueOrDefault(build.Build, new Dictionary<string, byte[]>());
@@ -107,7 +109,7 @@ public sealed class RealmManager
         realm.CharacterCount = characterCount;
         realm.Timezone = timezone;
         realm.PopulationLevel = populationLevel;
-        realm.Build = (uint)ModernVersion.Build;
+        realm.Build = _clientBuild;
 
         realm.Id = new RealmId(placeholderRegion, placeholderBattlegroup, id);
         UpdateRealm(realm);

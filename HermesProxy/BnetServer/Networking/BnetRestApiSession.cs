@@ -118,7 +118,7 @@ public sealed class BnetRestApiSession : SSLSocket
         globalSession.Locale = pathElements[3];
 
         // Should never happen. Session.HandleLogon checks version already
-        if (ModernVersion.Build != (ClientVersionBuild) globalSession.Build)
+        if (ModernVersion.ClientBuild != (ClientVersionBuild) globalSession.Build)
             return SendAuthError(AuthResult.FAIL_WRONG_MODERN_VER);
 
         string login = "";

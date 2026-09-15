@@ -525,6 +525,7 @@ public enum ClientVersionBuild
     V2_5_3_42598 = 42598, // live
 
     // WotLK Classic
+    V3_4_3_52237 = 52237,
     V3_4_3_54261 = 54261,
 
     // Battle.net - should probably not mix this but oh well
