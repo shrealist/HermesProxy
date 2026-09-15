@@ -32,13 +32,13 @@ public partial class WorldClient
     private static readonly string _netDirSend = Log.FormatDir(LogNetDir.P2S);
     private const string _netDirNone = "";
 
-    // Minimal WotLK 3.3.5a CMSG_AUTH_SESSION addon payload: [uncompressedSize=4][zlib(addonsCount=0)].
-    // Built once; mangos-wotlk accepts a zero-addon-list as valid.
+    // Empty WotLK addon list includes the trailing uint32 expected by AzerothCore.
+    // Omitting that field causes a buffer over-read after addonsCount.
     private static readonly byte[] EmptyAddonInfoBlob = BuildEmptyAddonInfoBlob();
 
-    private static byte[] BuildEmptyAddonInfoBlob()
+    internal static byte[] BuildEmptyAddonInfoBlob()
     {
-        ReadOnlySpan<byte> uncompressed = [0, 0, 0, 0]; // uint32 addonsCount = 0
+        ReadOnlySpan<byte> uncompressed = [0, 0, 0, 0, 0, 0, 0, 0]; // uint32 addonsCount = 0, trailing field = 0
         using var compressed = new System.IO.MemoryStream();
         using (var deflate = new System.IO.Compression.ZLibStream(compressed, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
             deflate.Write(uncompressed);
