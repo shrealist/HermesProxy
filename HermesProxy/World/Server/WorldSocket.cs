@@ -1035,8 +1035,13 @@ public partial class WorldSocket : SocketBase, BnetServices.INetwork
         if (code == BattlenetRpcErrorCode.Ok)
         {
             response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-            response.SuccessInfo.ActiveExpansionLevel = (byte)LegacyVersion.ExpansionVersion;
-            response.SuccessInfo.AccountExpansionLevel = (byte)LegacyVersion.ExpansionVersion;
+            // AuthSuccess uses the client expansion enum (Classic=0, TBC=1, WotLK=2),
+            // whereas VersionChecker.ExpansionVersion is the protocol major version.
+            // Sending 3 for the 3.3.5a legacy server makes a 3.4.3 client select the
+            // Cataclysm rules while InitialSetup correctly announces WotLK (2).
+            byte expansionLevel = (byte)(LegacyVersion.ExpansionVersion - 1);
+            response.SuccessInfo.ActiveExpansionLevel = expansionLevel;
+            response.SuccessInfo.AccountExpansionLevel = expansionLevel;
             response.SuccessInfo.VirtualRealmAddress = _realmId.GetAddress();
             response.SuccessInfo.Time = (uint)Time.UnixTime;
 
